@@ -1,0 +1,51 @@
+<template>
+    <lightning-card title="Book Library" icon-name="standard:product">
+        <div class="book-container">
+            <template for:each={books} for:item="book">
+                <div key={book.name} class="book-card slds-card slds-p-around_medium">
+                    <div class="slds-grid slds-wrap">
+                        <div class="slds-col slds-size_1-of-1">
+                            <h2 class="book-title">{book.name}</h2>
+                            <div class="book-meta">
+                                <span class="book-author">by {book.author}</span><br/>
+                                <span class="book-year">{book.year}</span>
+                            </div>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-p-top_small">
+                            <p class="book-rating">Rating:
+                                <template for:each={book.stars} for:item="star">
+                                    <lightning-icon 
+                                        key={star.key}
+                                        icon-name={star.icon}
+                                        size="x-small"
+                                        alternative-text="Star"
+                                        class="star-icon">
+                                    </lightning-icon>
+                                </template>
+                                ({book.rating})
+                            </p>
+                            <p>Quantity: {book.quantity}</p>
+
+                            <template if:true={book.isBestseller}>
+                                <span class="bestseller-badge">Best Seller</span>
+                            </template>
+                        </div>
+
+                        <div class="slds-col slds-size_1-of-1 slds-p-top_medium">
+                            <lightning-button 
+                                class="buy-now-button"
+                                variant="brand"
+                                label="Buy"
+                                title="Buy"
+                                icon-name="utility:cart"
+                                onclick={handleBuy}
+                                data-title={book.name}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>
