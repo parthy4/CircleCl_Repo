@@ -10,9 +10,6 @@ public class AccountRelatedDetailsController {
         public Account RelatedEntity;
     }
 
-    //Loading the Invocable Method
-    //This method is used to get the Account related details like Contacts, Cases and Opportunities
-    
     @InvocableMethod(label= 'Account Related Details'
                      description= 'Getting the Account Related Details'
     				 CapabilityType= 'PromptTemplateType://einstein_gpt__fieldCompletion')
