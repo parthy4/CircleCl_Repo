@@ -32,7 +32,7 @@ export default class Booklwc extends LightningElement {
 
                     while (stars.length < 5) {
                         stars.push({ key: `${record.name}-empty-${stars.length}`, icon: 'utility:favorite_outline' });
-                    }
+                        }
 
                     return {
                         ...record,
