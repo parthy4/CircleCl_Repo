@@ -1,65 +1,62 @@
-public class AccountRelatedDetailsController {
+public with sharing class AccountRelatedDetailsController {
     
     public class OutputResponse{
         @InvocableVariable
-        public string Prompt;
+        public String Prompt;
     }
     
-    public class InputResquest{
-        @InvocableVariable
+    public class InputRequest{
+        @InvocableVariable(required=true)
         public Account RelatedEntity;
     }
 
-    @InvocableMethod(label= 'Account Related Details'
-                     description= 'Getting the Account Related Details'
-    				 CapabilityType= 'PromptTemplateType://einstein_gpt__fieldCompletion')
-    
-    public static List<OutputResponse> getAccountReleatedDetails(List<InputResquest>request ){
-        
-       List <OutputResponse> outresp = New List <OutputResponse>();
-        
-        string responseString = null;
-        Account AccId = request[0].RelatedEntity;
-        
-        List<contact> contacts = [select Id, Name, Email from contact where AccountId=: AccId.Id];
-        if(contacts.size()>0){ 
-            for(contact con: contacts){
-                responseString = responseString+ string.format('Contact Details:- Name is {0} and Email is {1}', new list <object>{con.Name, con.Email});
-                responseString = responseString + '\n';
-            } 
+    @InvocableMethod(label='Account Related Details'
+                     description='Getting the Account Related Details'
+                     capabilityType='PromptTemplateType://einstein_gpt__fieldCompletion')
+    public static List<OutputResponse> getAccountRelatedDetails(List<InputRequest> requests) {
+        List<OutputResponse> responses = new List<OutputResponse>();
+
+        if (requests == null || requests.isEmpty() || requests[0].RelatedEntity == null) {
+            OutputResponse res = new OutputResponse();
+            res.Prompt = 'No Account provided.';
+            responses.add(res);
+            return responses;
         }
-        else {
-            responseString = responseString +'There are no contact records' +'\n';
-        }
-        
-        
-        List<Case> cases = [select Id, CaseNumber, Status from Case where AccountId=: AccId.Id];
-        if(contacts.size()>0){ 
-            for(Case objCon: cases){
-                responseString = responseString+ string.format('Case Details:- CaseNumber is {0} and Status is {1}', new list <object>{objCon.CaseNumber, objCon.Status});
-                responseString = responseString + '\n';
+
+        Account acc = requests[0].RelatedEntity;
+        StringBuilder sb = new StringBuilder();
+
+        List<Contact> contacts = [SELECT Name, Email FROM Contact WHERE AccountId = :acc.Id];
+        if (!contacts.isEmpty()) {
+            for (Contact con : contacts) {
+                sb.append(String.format('Contact Details:- Name is {0} and Email is {1}\n', new List<Object>{ con.Name, con.Email }));
             }
         } else {
-            responseString = responseString +'There are no Case records' +'\n';
-            
+            sb.append('There are no contact records\n');
         }
-        
-        List<Opportunity> opp = [select Id, Name, Amount, StageName from Opportunity where AccountId=: AccId.Id];
-        if(opp.size()>0){ 
-            for(Opportunity objOpp: opp){
-                responseString = responseString+ string.format('Opportunity Details:- Name is {0}, Amount is{1} and StageName is {2}', new list <object>{objOpp.Name, objOpp.Amount, objOpp.StageName});
-                responseString = responseString + '\n';
-            } 
-        } else {
-            responseString = responseString +'There are no Opportunity records' +'\n';
-            
-        }
-        
-        OutputResponse res= new OutputResponse();
-        res.Prompt = responseString;
-        outresp.add(res);
-            
-        return outresp;
-    }
 
+        List<Case> cases = [SELECT CaseNumber, Status FROM Case WHERE AccountId = :acc.Id];
+        if (!cases.isEmpty()) {
+            for (Case c : cases) {
+                sb.append(String.format('Case Details:- CaseNumber is {0} and Status is {1}\n', new List<Object>{ c.CaseNumber, c.Status }));
+            }
+        } else {
+            sb.append('There are no Case records\n');
+        }
+
+        List<Opportunity> opportunities = [SELECT Name, Amount, StageName FROM Opportunity WHERE AccountId = :acc.Id];
+        if (!opportunities.isEmpty()) {
+            for (Opportunity opp : opportunities) {
+                sb.append(String.format('Opportunity Details:- Name is {0}, Amount is {1} and StageName is {2}\n', new List<Object>{ opp.Name, opp.Amount, opp.StageName }));
+            }
+        } else {
+            sb.append('There are no Opportunity records\n');
+        }
+
+        OutputResponse res = new OutputResponse();
+        res.Prompt = sb.toString();
+        responses.add(res);
+
+        return responses;
+    }
 }
